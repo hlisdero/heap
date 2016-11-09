@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void pruebas_heap_alumno(void);
+void pruebas_heap_alumno();
 
 /* ******************************************************************
  *                        PROGRAMA PRINCIPAL

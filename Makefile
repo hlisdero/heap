@@ -1,5 +1,5 @@
 CFLAGS=-g -std=c99 -Wall -Wconversion -Wno-sign-conversion
-OBJ=pruebas_alumno.c main.c heap.c heap.h testing.c testing.h
+OBJ=main.c pruebas_alumno.c heap.c heap.h testing.c testing.h
 CC=gcc
 EXEC=pruebas
 
