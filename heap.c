@@ -49,12 +49,12 @@ static void downheap(heap_t * heap, size_t indice)
     size_t der = DER(indice);
     size_t mayor;
 
-    if (izq <= heap->cant && heap->cmp(heap->datos[izq], heap->datos[indice]) > 0) {
+    if (izq < heap->cant && heap->cmp(heap->datos[izq], heap->datos[indice]) > 0) {
         mayor = izq;
     } else {
         mayor = indice;
     }
-    if (der <= heap->cant && heap->cmp(heap->datos[der], heap->datos[mayor]) > 0) {
+    if (der < heap->cant && heap->cmp(heap->datos[der], heap->datos[mayor]) > 0) {
         mayor = der;
     }
     if (mayor != indice) {
