@@ -247,7 +247,8 @@ void *heap_desencolar(heap_t *heap)
         return NULL;
     }
     dato_salida = heap->datos[0];
-    intercambiar(heap->datos + heap->cant, heap->datos);
+    /* Intercambio el último elemento (cant-1), con el primero */
+    intercambiar(heap->datos + heap->cant - 1, heap->datos);
     --(heap->cant);
     downheap(heap, 0);
     /* Ya habiendo sacado el elemento, chequea si hay que achicar el arreglo */
