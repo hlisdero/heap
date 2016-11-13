@@ -2,7 +2,7 @@
 #include <string.h>
 #include "heap.h"
 #define TAM_INICIAL 32
-#define PADRE(x)    ((x-1)/2)     // Calcula el indice del padre
+#define PADRE(x)    ((x) == 0? 0 :(x-1)/2)     // Calcula el indice del padre
 #define IZQ(x)  (2*(x)+ 1)         // Calcula el indice del hijo izquierdo
 #define DER(x)  (2*(x)+ 2)      // Calcula el indice del hijo derecho
 
@@ -37,7 +37,7 @@ static void upheap(heap_t * heap, size_t indice)
     size_t padre = PADRE(indice);
 
     if (heap->cmp(heap->datos[indice], heap->datos[padre]) > 0) {
-        intercambiar(heap->datos[indice], heap->datos[padre]);
+        intercambiar(heap->datos + indice, heap->datos + padre);
         upheap(heap, padre);
     }
 }
@@ -108,7 +108,7 @@ void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp)
     heap->cmp = cmp;
 
     for (i = (heap->cant)-1; i > 0; i--) {
-        intercambiar(heap->datos[0], heap->datos[i]);
+        intercambiar(heap->datos, heap->datos + i);
         --(heap->cant);
         downheap(heap, 0);
     }
@@ -218,6 +218,7 @@ bool heap_encolar(heap_t *heap, void *elem)
     }
     heap->datos[heap->cant] = elem;
     upheap(heap, heap->cant);
+    ++(heap->cant);
     return true;
 }
 
@@ -246,7 +247,7 @@ void *heap_desencolar(heap_t *heap)
         return NULL;
     }
     dato_salida = heap->datos[0];
-    intercambiar(heap->datos[heap->cant], heap->datos[0]);
+    intercambiar(heap->datos + heap->cant, heap->datos);
     --(heap->cant);
     downheap(heap, 0);
     /* Ya habiendo sacado el elemento, chequea si hay que achicar el arreglo */

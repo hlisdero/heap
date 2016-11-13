@@ -11,6 +11,12 @@ int intcmp(const void * a, const void * b)
     return *(const int *)a - *(const int *)b;
 }
 
+/* Funcion wrapper para strcmp para evitar punteros incompatibles */
+int comparar_strings(const void * a, const void * b)
+{
+    return strcmp((const char *) a, (const char *) b);
+}
+
 /* Pruebas para un heap vacio */
 static void pruebas_heap_vacio()
 {
@@ -34,7 +40,7 @@ static void pruebas_heap_algunos_elementos()
 {
     int i;
     char * s[] = {"Spam", "Eggs", "Monty", "Python"};
-    heap_t * heap = heap_crear(strcmp);
+    heap_t * heap = heap_crear(comparar_strings);
 
     printf("INICIO DE PRUEBAS CON ALGUNOS ELEMENTOS\n");
     print_test("crear heap", heap);
