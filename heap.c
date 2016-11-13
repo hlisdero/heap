@@ -1,9 +1,10 @@
 #include <stdlib.h>
+#include <string.h>
 #include "heap.h"
 #define TAM_INICIAL 32
-#define PADRE(x)    ((x)/2)     // Calcula el indice del padre
-#define IZQ(x)  (2*(x))         // Calcula el indice del hijo izquierdo
-#define DER(x)  (2*(x)+ 1)      // Calcula el indice del hijo derecho
+#define PADRE(x)    ((x-1)/2)     // Calcula el indice del padre
+#define IZQ(x)  (2*(x)+ 1)         // Calcula el indice del hijo izquierdo
+#define DER(x)  (2*(x)+ 2)      // Calcula el indice del hijo derecho
 
 /* *****************************************************************
  *            Definición de las estructuras de datos               *
@@ -123,9 +124,10 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp)
     nuevo->tam = n;
     nuevo->cmp = cmp;
 
-    for (i = n/2; i > 1; i--) {
+    for (i = (n-1)/2; i > 0; i--) {
         downheap(nuevo, i);
     }
+    downheap(nuevo, 0);
     return nuevo;
 }
 
