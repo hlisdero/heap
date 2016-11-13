@@ -56,7 +56,7 @@ static void pruebas_heap_algunos_elementos()
     print_test("desencolar dato es Eggs", heap_desencolar(heap) == s[1]);
 
     /* Ahora está vacío */
-    print_test("el heap está vacío", heap_esta_vacio(heap) == 0);
+    print_test("el heap está vacío", heap_esta_vacio(heap));
 
     /* Guardo cuatro elementos y destruyo el heap */
     for (i = 0; i < 4; i++) {
