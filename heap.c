@@ -50,6 +50,31 @@ static void downheap(heap_t * heap, size_t indice)
     }
 }
 
+/* Condición para agrandar: ocupado más del 75% */
+static bool debe_agrandar(size_t cant, size_t tam)
+{
+    return 4*cant > 3*tam;
+}
+
+/* Condición para achicar: ocupado menos del 25% */
+static bool debe_achicar(size_t cant, size_t tam)
+{
+    return 4*cant < tam;
+}
+
+/* Redimensiona el heap, recibe el tam nuevo */
+static bool redimensionar_heap(heap_t * heap, size_t tam_nuevo)
+{
+    void * aux = realloc(heap->datos, tam_nuevo*sizeof(void *));
+
+    if (!aux) {
+        return false;
+    }
+    heap->datos = aux;
+    heap->tam = tam_nuevo;
+    return true;
+}
+
 /* Función de heapsort genérica. Esta función ordena mediante heap_sort
  * un arreglo de punteros opacos, para lo cual requiere que se
  * le pase una función de comparación. Modifica el arreglo "in-place".
@@ -172,7 +197,15 @@ bool heap_esta_vacio(const heap_t *heap)
  * Pre: el heap fue creado.
  * Post: se agregó un nuevo elemento al heap.
  */
-bool heap_encolar(heap_t *heap, void *elem);
+bool heap_encolar(heap_t *heap, void *elem)
+{
+    if (debe_agrandar(heap->cant, heap->tam) && !redimensionar_heap(heap, 2*heap->tam)) {
+        return false;
+    }
+    heap->datos[heap->cant] = elem;
+    downheap(heap, PADRE(heap->cant));
+    return true;
+}
 
 /* Devuelve el elemento con máxima prioridad. Si el heap esta vacío, devuelve
  * NULL.
@@ -191,4 +224,20 @@ void *heap_ver_max(const heap_t *heap)
  * Pre: el heap fue creado.
  * Post: el elemento desencolado ya no se encuentra en el heap.
  */
-void *heap_desencolar(heap_t *heap);
+void *heap_desencolar(heap_t *heap)
+{
+    void * dato_salida;
+
+    if (heap_esta_vacio(heap)) {
+        return NULL;
+    } else {
+        dato_salida = heap->datos[0];
+        intercambiar(heap->datos[heap->cant], heap->datos[0]);
+        --(heap->cant);
+        downheap(heap, 0);
+    }
+    if (debe_achicar(heap->cant, heap->tam) && !redimensionar_heap(heap, (heap->tam)/2)) {
+        return NULL;
+    }
+    return dato_salida;
+}
