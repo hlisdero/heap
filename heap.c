@@ -59,17 +59,22 @@ static void downheap(heap_t * heap, size_t indice)
 void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp)
 {
     size_t i;
-    heap_t * heap = heap_crear_arr(elementos, cant, cmp);
+    heap_t * heap = malloc(sizeof(heap_t));
 
     if (!heap) {
         return;
     }
-    for (i = heap->cant; i > 2; i--) {
-        intercambiar(heap->datos[1], heap->datos[i]);
+    heap->datos = elementos;
+    heap->cant = cant;
+    heap->tam = cant;
+    heap->cmp = cmp;
+
+    for (i = (heap->cant)-1; i > 0; i--) {
+        intercambiar(heap->datos[0], heap->datos[i]);
         --(heap->cant);
-        downheap(heap, 1);
+        downheap(heap, 0);
     }
-    heap_destruir(heap, NULL);
+    free(heap);
 }
 
 /* *****************************************************************
@@ -119,6 +124,7 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp)
         free(nuevo);
         return NULL;
     }
+    /* Debo copiar el arreglo, para poder redimensionarlo después */
     memcpy(nuevo->datos, arreglo, n*sizeof(void *));
     nuevo->cant = n;
     nuevo->tam = n;
