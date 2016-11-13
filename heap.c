@@ -29,6 +29,19 @@ void intercambiar(void ** a, void ** b)
     *b = aux;
 }
 
+/* Mueve el elemento de la posición índice hacia arriba en el heap
+ * (hacia índices más bajos en el arreglo) hasta que se respete la propiedad de heap
+ */
+static void upheap(heap_t * heap, size_t indice)
+{
+    size_t padre = PADRE(indice);
+
+    if (heap->cmp(heap->datos[indice], heap->datos[padre]) > 0) {
+        intercambiar(heap->datos[indice], heap->datos[padre]);
+        upheap(heap, padre);
+    }
+}
+
 /* Downheap, basado en el pseudocódigo de MAX_HEAPIFY del Cormen */
 static void downheap(heap_t * heap, size_t indice)
 {
@@ -199,11 +212,12 @@ bool heap_esta_vacio(const heap_t *heap)
  */
 bool heap_encolar(heap_t *heap, void *elem)
 {
+    /* Chequa si debe agrandar el arreglo */
     if (debe_agrandar(heap->cant, heap->tam) && !redimensionar_heap(heap, 2*heap->tam)) {
         return false;
     }
     heap->datos[heap->cant] = elem;
-    downheap(heap, PADRE(heap->cant));
+    upheap(heap, heap->cant);
     return true;
 }
 
@@ -230,12 +244,12 @@ void *heap_desencolar(heap_t *heap)
 
     if (heap_esta_vacio(heap)) {
         return NULL;
-    } else {
-        dato_salida = heap->datos[0];
-        intercambiar(heap->datos[heap->cant], heap->datos[0]);
-        --(heap->cant);
-        downheap(heap, 0);
     }
+    dato_salida = heap->datos[0];
+    intercambiar(heap->datos[heap->cant], heap->datos[0]);
+    --(heap->cant);
+    downheap(heap, 0);
+    /* Ya habiendo sacado el elemento, chequea si hay que achicar el arreglo */
     if (debe_achicar(heap->cant, heap->tam) && !redimensionar_heap(heap, (heap->tam)/2)) {
         return NULL;
     }
