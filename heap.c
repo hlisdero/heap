@@ -66,13 +66,13 @@ static void downheap(heap_t * heap, size_t indice)
 /* Condición para agrandar: ocupado más del 75% */
 static bool debe_agrandar(size_t cant, size_t tam)
 {
-    return 4*cant > 3*tam;
+    return (4*cant > 3*tam);
 }
 
 /* Condición para achicar: ocupado menos del 25% */
 static bool debe_achicar(size_t cant, size_t tam)
 {
-    return 4*cant < tam;
+    return (4*cant < tam);
 }
 
 /* Redimensiona el heap, recibe el tam nuevo */
