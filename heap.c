@@ -32,13 +32,13 @@ void intercambiar(void ** a, void ** b)
 /* Mueve el elemento de la posición índice hacia arriba en el heap
  * (hacia índices más bajos en el arreglo) hasta que se respete la propiedad de heap
  */
-static void upheap(heap_t * heap, size_t indice)
+static void upheap(size_t indice, void ** datos, cmp_func_t cmp)
 {
     size_t padre = PADRE(indice);
 
-    if (heap->cmp(heap->datos[indice], heap->datos[padre]) > 0) {
-        intercambiar(heap->datos + indice, heap->datos + padre);
-        upheap(heap, padre);
+    if (cmp(datos[indice], datos[padre]) > 0) {
+        intercambiar(datos + indice, datos + padre);
+        upheap(padre, datos, cmp);
     }
 }
 
@@ -217,7 +217,7 @@ bool heap_encolar(heap_t *heap, void *elem)
         return false;
     }
     heap->datos[heap->cant] = elem;
-    upheap(heap, heap->cant);
+    upheap(heap->cant, heap->datos, heap->cmp);
     ++(heap->cant);
     return true;
 }
