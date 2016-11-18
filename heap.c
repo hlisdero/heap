@@ -43,23 +43,23 @@ static void upheap(heap_t * heap, size_t indice)
 }
 
 /* Downheap, basado en el pseudocódigo de MAX_HEAPIFY del Cormen */
-static void downheap(heap_t * heap, size_t indice)
+static void downheap(size_t indice, void ** datos, size_t cant, cmp_func_t cmp)
 {
     size_t izq = IZQ(indice);
     size_t der = DER(indice);
     size_t mayor;
 
-    if (izq < heap->cant && heap->cmp(heap->datos[izq], heap->datos[indice]) > 0) {
+    if (izq < cant && cmp(datos[izq], datos[indice]) > 0) {
         mayor = izq;
     } else {
         mayor = indice;
     }
-    if (der < heap->cant && heap->cmp(heap->datos[der], heap->datos[mayor]) > 0) {
+    if (der < cant && cmp(datos[der], datos[mayor]) > 0) {
         mayor = der;
     }
     if (mayor != indice) {
-        intercambiar(heap->datos + indice, heap->datos + mayor);
-        downheap(heap, mayor);
+        intercambiar(datos + indice, datos + mayor);
+        downheap(mayor, datos, cant, cmp);
     }
 }
 
@@ -110,7 +110,7 @@ void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp)
     for (i = (heap->cant)-1; i > 0; i--) {
         intercambiar(heap->datos, heap->datos + i);
         --(heap->cant);
-        downheap(heap, 0);
+        downheap(0, heap->datos, heap->cant, heap->cmp);
     }
     free(heap);
 }
@@ -169,9 +169,9 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp)
     nuevo->cmp = cmp;
 
     for (i = (n-1)/2; i > 0; i--) {
-        downheap(nuevo, i);
+        downheap(i, nuevo->datos, nuevo->cant, nuevo->cmp);
     }
-    downheap(nuevo, 0);
+    downheap(0, nuevo->datos, nuevo->cant, nuevo->cmp);
     return nuevo;
 }
 
@@ -250,7 +250,7 @@ void *heap_desencolar(heap_t *heap)
     /* Intercambio el último elemento (cant-1), con el primero */
     intercambiar(heap->datos + heap->cant - 1, heap->datos);
     --(heap->cant);
-    downheap(heap, 0);
+    downheap(0, heap->datos, heap->cant, heap->cmp);
     /* Ya habiendo sacado el elemento, chequea si hay que achicar el arreglo */
     if (debe_achicar(heap->cant, heap->tam) && !redimensionar_heap(heap, (heap->tam)/2)) {
         return NULL;
