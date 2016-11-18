@@ -241,9 +241,9 @@ void *heap_desencolar(heap_t *heap)
         return NULL;
     }
     dato_salida = heap->datos[0];
-    /* Intercambio el último elemento (cant-1), con el primero */
-    intercambiar(heap->datos + heap->cant - 1, heap->datos);
-    --(heap->cant);
+    /* Decrementa la cant, heap->cant es ahora el indice del último elemento, lo pone en 0 */
+    heap->datos[0] = heap->datos[--(heap->cant)];
+    /* Recupera la condición de heap */
     downheap(0, heap->datos, heap->cant, heap->cmp);
     /* Ya habiendo sacado el elemento, chequea si hay que achicar el arreglo */
     if (debe_achicar(heap->cant, heap->tam) && !redimensionar_heap(heap, (heap->tam)/2)) {
