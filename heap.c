@@ -2,9 +2,6 @@
 #include <string.h>
 #include "heap.h"
 #define TAM_INICIAL 32
-#define PADRE(x)    ((x) == 0? 0 :(x-1)/2)     // Calcula el indice del padre
-#define IZQ(x)  (2*(x)+ 1)         // Calcula el indice del hijo izquierdo
-#define DER(x)  (2*(x)+ 2)      // Calcula el indice del hijo derecho
 
 /* *****************************************************************
  *            Definición de las estructuras de datos               *
@@ -34,7 +31,7 @@ void intercambiar(void ** a, void ** b)
  */
 static void upheap(size_t indice, void ** datos, cmp_func_t cmp)
 {
-    size_t padre = PADRE(indice);
+    size_t padre = (indice == 0? 0 :(indice-1)/2);     // Calcula el indice del padre
 
     if (cmp(datos[indice], datos[padre]) > 0) {
         intercambiar(datos + indice, datos + padre);
@@ -45,8 +42,8 @@ static void upheap(size_t indice, void ** datos, cmp_func_t cmp)
 /* Downheap, basado en el pseudocódigo de MAX_HEAPIFY del Cormen */
 static void downheap(size_t indice, void ** datos, size_t cant, cmp_func_t cmp)
 {
-    size_t izq = IZQ(indice);
-    size_t der = DER(indice);
+    size_t izq = (2*indice + 1);      // Calcula el indice del hijo izquierdo
+    size_t der = (2*indice + 2);      // Calcula el indice del hijo derecho
     size_t mayor;
 
     if (izq < cant && cmp(datos[izq], datos[indice]) > 0) {
