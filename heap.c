@@ -94,22 +94,19 @@ static bool redimensionar_heap(heap_t * heap, size_t tam_nuevo)
 void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp)
 {
     size_t i;
-    heap_t * heap = malloc(sizeof(heap_t));
 
-    if (!heap) {
-        return;
+    /* Convierto el arreglo en un heap de máximos */
+    for (i = (cant-1)/2; i > 0; i--) {
+        downheap(i, elementos, cant, cmp);
     }
-    heap->datos = elementos;
-    heap->cant = cant;
-    heap->tam = cant;
-    heap->cmp = cmp;
+    downheap(0, elementos, cant, cmp);
 
-    for (i = (heap->cant)-1; i > 0; i--) {
-        intercambiar(heap->datos, heap->datos + i);
-        --(heap->cant);
-        downheap(0, heap->datos, heap->cant, heap->cmp);
+    /* Ordeno el arreglo, sacando el máximo y reorganizando el arreglo, cant-1 veces */
+    for (i = cant-1; i > 0; i--) {
+        intercambiar(elementos, elementos + i);
+        --cant;
+        downheap(0, elementos, cant, cmp);
     }
-    free(heap);
 }
 
 /* *****************************************************************
