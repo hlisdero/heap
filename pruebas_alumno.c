@@ -72,7 +72,7 @@ static void pruebas_heap_algunos_elementos()
 
 static void pruebas_heap_enteros()
 {
-	int datos[]={2, 8, 4, 6, 9, 4};
+	int datos[] = {2, 8, 4, 6, 9, 4};
 	heap_t * heap = heap_crear(intcmp);
 
 	printf("INICIO DE PRUEBAS CON UN HEAP DE ENTEROS\n");
@@ -107,34 +107,81 @@ static void pruebas_heap_enteros()
     print_test("el heap fue destruido", true);
 }
 
-static void pruebas_heap_elementos_allocados_memoria_dinamica()
+static void pruebas_heap_crear_arr()
 {
-	int* valor1 = malloc(sizeof(int));
-	int* valor2 = malloc(sizeof(int));
-	int* valor3 = malloc(sizeof(int));
-	int* valor4 = malloc(sizeof(int));
-	heap_t * heap = heap_crear(intcmp);
+    size_t i;
+    int valores[] = {10, 5, 35, 7};
+    int ** arreglo = malloc(sizeof(int *)*4);
+    heap_t * heap;
 
-    if (!valor1 || !valor2 || !valor3 || !valor4) {
+    if (!arreglo) {
+        printf("No hay memoria suficiente para las pruebas\n");
         return;
     }
-	*valor1 = 10;
-	*valor2 = 5;
-	*valor3 = 35;
-	*valor4 = 7;
+    /* Reservo cuatro enteros en memoria dinámica y les asigno valores */
+    for (i = 0; i < 4; i++) {
+        arreglo[i] = malloc(sizeof(int));
+        if (!arreglo[i]) {
+            printf("No hay memoria suficiente para las pruebas\n");
+            return;
+        }
+        *arreglo[i] = valores[i];
+    }
 
-	printf("INICIO DE PRUEBAS CON ELEMENTOS EN MEMORIA DINAMICA\n");
+    heap = heap_crear_arr((void *) arreglo, 4, intcmp);
+
+	printf("INICIO DE PRUEBAS HEAP CREADO A PARTIR DE ARREGLO\n");
     print_test("crear heap", heap);
 
-	/* Guardo y borro datos */
-	print_test("encolar 10", heap_encolar(heap, valor1));
-	print_test("encolar 5", heap_encolar(heap, valor2));
-	print_test("encolar 35", heap_encolar(heap, valor3));
-	print_test("encolar 7", heap_encolar(heap, valor4));
+	/* Chequeo que estén los 4 elementos */
 	print_test("el heap no está vacío", !heap_esta_vacio(heap));
-	print_test("ver máximo es 35", heap_ver_max(heap) == valor3);
+	print_test("la cantidad de elementos es 4", heap_cantidad(heap) == 4);
+	print_test("ver máximo es 35", heap_ver_max(heap) == arreglo[2]);
 
     /* Destruyo el heap con sus elementos restantes */
+    heap_destruir(heap, free);
+    print_test("el heap fue destruido", true);
+
+    /* Destruyo el arreglo */
+    free(arreglo);
+}
+
+static void pruebas_heap_muchos_elementos(size_t volumen)
+{
+    size_t i;
+	bool ok = true;
+	heap_t * heap = heap_crear(intcmp);
+
+	printf("INICIO DE PRUEBAS CON MUCHOS ELEMENTOS\n");
+	print_test("crear heap", heap);
+
+    /* Encolo elementos allocados en memoria dinámica */
+	for (i = 0; i < volumen; i++) {
+        size_t * elemento = malloc(sizeof(size_t));
+        *elemento = i+1;
+		ok = heap_encolar(heap, elemento);
+		if (!ok) {
+			break;
+		}
+	}
+
+    /* Chequeo que se hayan encolado todos los elementos */
+    print_test("se encolaron todos los datos", ok);
+    print_test("el heap no esta vacio", !heap_esta_vacio(heap));
+	print_test("la cantidad de elementos es 5000", heap_cantidad(heap) == volumen);
+    print_test("ver máximo es 5000", *(size_t *)heap_ver_max(heap) == 5000);
+
+    /* Borro la mitad de los elementos */
+    for (i = 0 ; i < volumen/2; i++){
+		free(heap_desencolar(heap));
+	}
+
+    /* Chequeo que se hayan borrado la mitad de los elementos */
+	print_test("el heap no esta vacio", !heap_esta_vacio(heap));
+	print_test("la cantidad de elementos es 2500", heap_cantidad(heap) == volumen/2);
+    print_test("ver máximo es 2500", *(size_t *)heap_ver_max(heap) == 2500);
+
+	/* Destruyo el heap */
     heap_destruir(heap, free);
     print_test("el heap fue destruido", true);
 }
@@ -158,53 +205,7 @@ static void pruebas_heapsort()
 			break;
 		}
 	}
-
-    /* Chequeo que el arreglo esté ordenado */
 	print_test("se ordeno el arreglo", ok);
-	print_test("el primero elemento es Fulano", strcmp(arreglo[0], arreglo_ordenado[0]) == 0);
-	print_test("el segundo elemento es Jose", strcmp(arreglo[1], arreglo_ordenado[1]) == 0);
-	print_test("el tercer elemento es Juan", strcmp(arreglo[2], arreglo_ordenado[2]) == 0);
-	print_test("el cuarto elemento es Mengano", strcmp(arreglo[3], arreglo_ordenado[3]) == 0);
-	print_test("el quinto elemento es Pepe", strcmp(arreglo[4], arreglo_ordenado[4]) == 0);
-}
-
-static void pruebas_heap_muchos_elementos(size_t volumen)
-{
-    size_t i;
-	bool ok = true;
-	heap_t * heap = heap_crear(intcmp);
-
-	printf("INICIO DE PRUEBAS CON MUCHOS ELEMENTOS\n");
-	print_test("crear heap", heap);
-
-	for (i = 0; i < volumen; i++) {
-		ok = heap_encolar(heap, &i);
-		if (!ok) {
-			break;
-		}
-	}
-
-    /* Chequeo que se hayan encolado todos los elementos */
-    print_test("se encolaron todos los datos",ok);
-    print_test("el heap no esta vacio", !heap_esta_vacio(heap));
-	print_test("la cantidad de elementos es 5000", heap_cantidad(heap) == volumen);
-
-    /* Borro los elementos */
-    ok = true;
-    for (i = 0 ; i < volumen; i++){
-		if (!heap_desencolar(heap)) {
-            ok = false;
-            break;
-        }
-	}
-
-    /* Chequeo el estado del heap */
-	print_test("se desencolaron todos los datos", ok);
-	print_test("el heap esta vacio", heap_esta_vacio(heap));
-
-	/* Destruyo el heap */
-    heap_destruir(heap, NULL);
-    print_test("el heap fue destruido", true);
 }
 
 void pruebas_heap_alumno()
@@ -212,7 +213,7 @@ void pruebas_heap_alumno()
     pruebas_heap_vacio();
     pruebas_heap_algunos_elementos();
     pruebas_heap_enteros();
-    pruebas_heap_elementos_allocados_memoria_dinamica();
+    pruebas_heap_crear_arr();
+    pruebas_heap_muchos_elementos(5000);
     pruebas_heapsort();
-    //pruebas_heap_muchos_elementos(5000);
 }
