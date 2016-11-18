@@ -27,7 +27,7 @@ void intercambiar(void ** a, void ** b)
 }
 
 /* Mueve el elemento de la posición índice hacia arriba en el heap
- * (hacia índices más bajos en el arreglo) hasta que se respete la propiedad de heap
+ * (hacia índices menores en el arreglo) hasta que se respete la propiedad de heap
  */
 static void upheap(size_t indice, void ** datos, cmp_func_t cmp)
 {
@@ -40,6 +40,9 @@ static void upheap(size_t indice, void ** datos, cmp_func_t cmp)
 }
 
 /* Downheap, basado en el pseudocódigo de MAX_HEAPIFY del Cormen */
+/* Mueve el elemento de la posición índice hacia abajo en el heap
+ * (hacia índices mayores en el arreglo) hasta que se respete la propiedad de heap
+ */
 static void downheap(size_t indice, void ** datos, size_t cant, cmp_func_t cmp)
 {
     size_t izq = (2*indice + 1);      // Calcula el indice del hijo izquierdo
@@ -101,7 +104,7 @@ void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp)
     }
     downheap(0, elementos, cant, cmp);
 
-    /* Ordeno el arreglo, sacando el máximo y reorganizando el arreglo, cant-1 veces */
+    /* Ordeno el arreglo, sacando el máximo mientras mantengo la condición de heap */
     for (i = cant-1; i > 0; i--) {
         intercambiar(elementos, elementos + i);
         --cant;
@@ -135,14 +138,6 @@ heap_t *heap_crear(cmp_func_t cmp)
     return nuevo;
 }
 
-/*
- * Constructor alternativo del heap. Además de la función de comparación,
- * recibe un arreglo de valores con que inicializar el heap. Complejidad
- * O(n).
- *
- * Excepto por la complejidad, es equivalente a crear un heap vacío y encolar
- * los valores de uno en uno
-*/
 heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp)
 {
     size_t i;
@@ -156,7 +151,7 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp)
         free(nuevo);
         return NULL;
     }
-    /* Debo copiar el arreglo, para poder redimensionarlo después */
+    /* Debe copiar el arreglo, para poder redimensionarlo después */
     memcpy(nuevo->datos, arreglo, n*sizeof(void *));
     nuevo->cant = n;
     nuevo->tam = n;
@@ -169,10 +164,6 @@ heap_t *heap_crear_arr(void *arreglo[], size_t n, cmp_func_t cmp)
     return nuevo;
 }
 
-/* Elimina el heap, llamando a la función dada para cada elemento del mismo.
- * El puntero a la función puede ser NULL, en cuyo caso no se llamará.
- * Post: se llamó a la función indicada con cada elemento del heap. El heap
- * dejó de ser válido. */
 void heap_destruir(heap_t *heap, void destruir_elemento(void *e))
 {
     size_t i;
@@ -186,24 +177,16 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *e))
     free(heap);
 }
 
-/* Devuelve la cantidad de elementos que hay en el heap. */
 size_t heap_cantidad(const heap_t *heap)
 {
     return heap->cant;
 }
 
-/* Devuelve true si la cantidad de elementos que hay en el heap es 0, false en
- * caso contrario. */
 bool heap_esta_vacio(const heap_t *heap)
 {
     return (heap->cant == 0);
 }
 
-/* Agrega un elemento al heap. El elemento no puede ser NULL.
- * Devuelve true si fue una operación exitosa, o false en caso de error.
- * Pre: el heap fue creado.
- * Post: se agregó un nuevo elemento al heap.
- */
 bool heap_encolar(heap_t *heap, void *elem)
 {
     /* Chequa si debe agrandar el arreglo */
@@ -216,10 +199,6 @@ bool heap_encolar(heap_t *heap, void *elem)
     return true;
 }
 
-/* Devuelve el elemento con máxima prioridad. Si el heap esta vacío, devuelve
- * NULL.
- * Pre: el heap fue creado.
- */
 void *heap_ver_max(const heap_t *heap)
 {
     if (heap_esta_vacio(heap))
@@ -228,11 +207,6 @@ void *heap_ver_max(const heap_t *heap)
         return heap->datos[0];
 }
 
-/* Elimina el elemento con máxima prioridad, y lo devuelve.
- * Si el heap esta vacío, devuelve NULL.
- * Pre: el heap fue creado.
- * Post: el elemento desencolado ya no se encuentra en el heap.
- */
 void *heap_desencolar(heap_t *heap)
 {
     void * dato_salida;
