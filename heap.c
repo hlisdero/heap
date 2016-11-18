@@ -31,7 +31,7 @@ void intercambiar(void ** a, void ** b)
  */
 static void upheap(size_t indice, void ** datos, cmp_func_t cmp)
 {
-    size_t padre = (indice == 0? 0 :(indice-1)/2);     // Calcula el indice del padre
+    size_t padre = (indice == 0? 0 : (indice-1)/2); // Calcula el indice del padre
 
     if (cmp(datos[indice], datos[padre]) > 0) {
         intercambiar(datos + indice, datos + padre);
@@ -75,7 +75,7 @@ static bool debe_achicar(size_t cant, size_t tam)
     return (4*cant < tam);
 }
 
-/* Redimensiona el heap, recibe el tam nuevo */
+/* Redimensiona el heap, recibe el tam nuevo y modifica el heap solo si realloc no falla */
 static bool redimensionar_heap(heap_t * heap, size_t tam_nuevo)
 {
     void * aux = realloc(heap->datos, tam_nuevo*sizeof(void *));
@@ -116,10 +116,6 @@ void heap_sort(void *elementos[], size_t cant, cmp_func_t cmp)
  *                    Primitivas del Heap                          *
  * *****************************************************************/
 
-/* Crea un heap. Recibe como único parámetro la función de comparación a
- * utilizar. Devuelve un puntero al heap, el cual debe ser destruido con
- * heap_destruir().
- */
 heap_t *heap_crear(cmp_func_t cmp)
 {
     heap_t * nuevo = malloc(sizeof(heap_t));
@@ -189,11 +185,12 @@ bool heap_esta_vacio(const heap_t *heap)
 
 bool heap_encolar(heap_t *heap, void *elem)
 {
-    /* Chequa si debe agrandar el arreglo */
     if (debe_agrandar(heap->cant, heap->tam) && !redimensionar_heap(heap, 2*heap->tam)) {
         return false;
     }
+    /* Inserto el elemento nuevo al final */
     heap->datos[heap->cant] = elem;
+    /* Reestablezco la propiedad de heap */
     upheap(heap->cant, heap->datos, heap->cmp);
     ++(heap->cant);
     return true;
@@ -214,9 +211,8 @@ void *heap_desencolar(heap_t *heap)
     dato_salida = heap->datos[0];
     /* Decrementa la cant, heap->cant es ahora el indice del último elemento, lo pone en 0 */
     heap->datos[0] = heap->datos[--(heap->cant)];
-    /* Recupera la condición de heap */
+    /* Reestablezco la propiedad de heap */
     downheap(0, heap->datos, heap->cant, heap->cmp);
-    /* Ya habiendo sacado el elemento, chequea si hay que achicar el arreglo */
     if (debe_achicar(heap->cant, heap->tam) && !redimensionar_heap(heap, (heap->tam)/2)) {
         return NULL;
     }
